@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_name }}</title>
+</head>
+<body>
+    <h1>Welcome TO University Of Bamenda Support Platform</h1>
+    <form method="post" action="/create_ticket">
+        {% csrf_token %}            
+        <label for="cars">Category:</label>
+        <select name="category">
+            {% for value, label in categories %} 
+                <option value="{{value}}">{{ label }}</option>
+            {% endfor %} 
+        </select> <br><br>
+        <label for="description">Description:</label><br>
+        <textarea name="description"></textarea><br><br>
+        <input type="submit" value="Submit">
+    </form> 
+</body>
+</html>
