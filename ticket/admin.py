@@ -17,3 +17,5 @@ admin.site.register(Ticket, TicketAdmin)
 # @admin.register(Ticket)
 # class AuthorAdmin(admin.ModelAdmin):
 #     pass
+
+

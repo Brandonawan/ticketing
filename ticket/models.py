@@ -15,9 +15,13 @@ class Ticket(models.Model):
     )  
     category = models.CharField(max_length=255, choices=possible_issues)
     description = models.TextField()
+    upload = models.ImageField(upload_to='upload/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.category} - {self.created_at}"
+
+
+
