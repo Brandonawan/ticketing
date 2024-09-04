@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_name }}</title>
+</head>
+<body>
+    <h1>Welcome to Your Dashboard</h1>
+    <table border="1px">
+        <tr>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Image</th>
+        </tr>
+        {% for ticket in tickets %}
+        <tr>
+            <td>{{ ticket.get_category_display }}</td>
+            <td>{{ ticket.description }}</td>
+
+            {% if ticket.status == "False" %}
+                <td>Open</td>
+            {% else %}
+             <td>Close</td>
+            {% endif %}
+            <td>{{ ticket.upload }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

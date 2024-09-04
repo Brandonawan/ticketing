@@ -5,5 +5,8 @@ from . import views
 urlpatterns = [
     path("", views.index, name="index"),
     path("create_ticket", views.create_ticket, name="create_ticket"),
-    path('cert/', views.generate_certificate, name='generate_certificate'),
+    path("dashboard/", views.dashboard, name="dashboard"),
+    path("register/", views.register, name="register"),
+    path("login/", views.user_login, name="login"),
+    
 ]

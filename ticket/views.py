@@ -5,6 +5,17 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import *
 
+# built in function for sending messages in django
+from django.contrib import messages
+
+# built in django user
+from django.contrib.auth.models import User
+
+# for user login
+from django.contrib.auth import authenticate, login, logout
+
+# check to make the user is login before acccessing the view
+from django.contrib.auth.decorators import login_required
 
 def index(request):
     page_name = "Home page"
@@ -25,66 +36,48 @@ def create_ticket(request):
             return redirect("index")
     return HttpResponse("Not submiited..")
 
-
-from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-
-def generate_certificate(request):
-    # Hard-coded student and course data
-    student_name = "John Doe"
-    course_name = "Introduction to Django"
-    completion_date = "August 23, 2024"
-
-    # Create the HttpResponse object with the appropriate PDF headers.
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
-
-    # Create the PDF object, using the HttpResponse object as its "file."
-    doc = SimpleDocTemplate(response, pagesize=letter)
-
-    # Sample style sheet
-    styles = getSampleStyleSheet()
-    flowables = []
-
-    # Certificate title
-    title = Paragraph("Certificate of Completion", styles['Title'])
-    flowables.append(title)
-
-    # Spacer between elements
-    flowables.append(Spacer(1, 50))
-
-    # Student Name
-    student_para = Paragraph(f"This is to certify that <b>{student_name}</b>", styles['Normal'])
-    flowables.append(student_para)
-
-    # Course Name
-    course_para = Paragraph(f"has successfully completed the course <b>{course_name}</b>", styles['Normal'])
-    flowables.append(course_para)
-
-    # Completion Date
-    date_para = Paragraph(f"on <b>{completion_date}</b>", styles['Normal'])
-    flowables.append(date_para)
-
-    # Spacer before signature line
-    flowables.append(Spacer(1, 50))
-
-    # Signature Line
-    signature_line = Paragraph("______________________________", styles['Normal'])
-    flowables.append(signature_line)
-    signature_label = Paragraph("Instructor's Signature", styles['Normal'])
-    flowables.append(signature_label)
-
-    # Build the PDF
-    doc.build(flowables)
-
-    return response
+@login_required
+def dashboard(request):
+    page_name = "Dashboard page"
+    # Extract the choices from the model
+    tickets = Ticket.objects.all()
+    print("Categoris:", tickets)
+    return render(request, "dashboard.html", {'page_name': page_name, 'tickets':tickets})
 
 
+def user_login(request):
+    page_name = "login page"
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        
+        if(username and password):
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid username or password')
+            
+    return render(request, "login.html", {'page_name': page_name})
 
 
+def register(request):
+    page_name = "Register page"
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        
+        if(username and password and email):
+            user = User.objects.create(username=username, password=password, email=email)
+            user.save()
+            
+            return redirect("login")
+        else:
+            messages.error(request, 'An error occured..')
+            
+    return render(request, "register.html", {'page_name': page_name})
 
 
 # @login_required
