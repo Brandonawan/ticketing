@@ -47,19 +47,23 @@ def dashboard(request):
 
 def user_login(request):
     page_name = "login page"
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        
-        if(username and password):
+
+        if username and password:
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-            return redirect('dashboard')
+                return redirect('dashboard')
+            else:
+                messages.error(request, 'Invalid username or password')
         else:
-            messages.error(request, 'Invalid username or password')
-            
+            messages.error(request, 'Please enter both username and password')
+
     return render(request, "login.html", {'page_name': page_name})
+
 
 
 def register(request):
@@ -79,7 +83,10 @@ def register(request):
             
     return render(request, "register.html", {'page_name': page_name})
 
-
+def user_logout(request):
+    logout(request)
+    return redirect("index")
+    
 # @login_required
 # def add_post(request):
 #     if request.method == 'POST':
