@@ -1,12 +1,9 @@
-from django.test import TestCase
+from datetime import datetime
 
-# Create your tests here.
-possible_issues =( 
-    ("1", "Missing results"), 
-    ("2", "Biodata update"), 
-    ("3", "Assault"), 
-)
+# Get the current date and time
+now = datetime.now()
 
-# print(possible_issues)
-for issue in possible_issues:
-    print(issue[1])
+# Format it to display day, month, year, and time
+formatted_time = now.strftime("%d %B %Y, %H:%M:%S")
+
+print(formatted_time)

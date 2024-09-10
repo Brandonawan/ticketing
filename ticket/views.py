@@ -1,7 +1,5 @@
 from django.shortcuts import render, redirect
 
-# Create your views here.
-
 from django.http import HttpResponse
 from .models import *
 
@@ -17,12 +15,63 @@ from django.contrib.auth import authenticate, login, logout
 # check to make the user is login before acccessing the view
 from django.contrib.auth.decorators import login_required
 
+# imported the send mail function from send_mail.py
+from .send_mail import send_email
+
+# for sending request of of the django app or python 
+import requests
+
+from django.http import JsonResponse
+from user_agents import parse
+from datetime import datetime
+
 def index(request):
     page_name = "Home page"
     # Extract the choices from the model
     categories = Ticket.possible_issues
     print("Categoris:", categories)
     return render(request, "home.html", {'page_name': page_name, 'categories':categories})
+
+def time():
+    # Get the current date and time
+    now = datetime.now()
+
+    # Format it to display day, month, year, and time
+    formatted_time = now.strftime("%d %B %Y, %H:%M:%S")
+    return formatted_time
+
+
+def get_ip_from_ipify():
+    try:
+        # Make a request to ipify API to get the public IP
+        response = requests.get('https://api.ipify.org?format=json')
+        ip = response.json().get('ip')
+        return ip
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+def get_client_info(request):
+    # Get public IP address from ipify
+    ip = get_ip_from_ipify()
+
+    # Get browser and device information
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    user_agent_info = parse(user_agent)
+    
+    browser = f"{user_agent_info.browser.family} {user_agent_info.browser.version_string}"
+    os = f"{user_agent_info.os.family} {user_agent_info.os.version_string}"
+    device = user_agent_info.device.family
+
+    # Return the data as a JSON response
+    return {
+        'ip': ip,
+        'browser': browser,
+        'os': os,
+        'device': device
+    }
+
+
+
 
 def create_ticket(request):
     if request.method == "POST":
@@ -56,6 +105,9 @@ def user_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                subject = "Login Successfull"
+                body = f"A Succesfully login from {get_client_info(request)} at {time()}"
+                send_email(subject, body, user.email, "abibangbrandon855@outlook.com", "Devops23#A_")
                 return redirect('dashboard')
             else:
                 messages.error(request, 'Invalid username or password')
@@ -75,7 +127,11 @@ def register(request):
         
         if(username and password and email):
             user = User.objects.create(username=username, password=password, email=email)
+            user.set_password(password)
             user.save()
+            subject = "Welcome to the ticketing system"
+            body = "Hello, welcome to the ticketing system. You have successfully registered"
+            send_email(subject, body, email, "abibangbrandon855@outlook.com", "Devops23#A_")
             
             return redirect("login")
         else:
@@ -99,3 +155,6 @@ def user_logout(request):
 #             return redirect('home')
         
 #     return render(request, "add_post.html")
+
+
+
